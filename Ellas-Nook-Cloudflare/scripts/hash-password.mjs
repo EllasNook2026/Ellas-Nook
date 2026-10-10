@@ -1,0 +1,2 @@
+import { randomBytes, pbkdf2Sync } from 'node:crypto';
+const password=process.argv[2];if(!password||password.length<14){console.error('Usage: node scripts/hash-password.mjs "a-long-unique-password" (minimum 14 characters)');process.exit(1)}const salt=randomBytes(16);const hash=pbkdf2Sync(password,salt,210000,32,'sha256');console.log(`pbkdf2$210000$${salt.toString('base64')}$${hash.toString('base64')}`);
