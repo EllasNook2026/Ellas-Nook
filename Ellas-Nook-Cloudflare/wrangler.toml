@@ -10,7 +10,7 @@ run_worker_first = ["/api/*", "/media/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "ellas-nook-db"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "9fb6c77c-93c1-4380-b663-6a5c1f91dd11"
 
 [[r2_buckets]]
 binding = "MEDIA"
