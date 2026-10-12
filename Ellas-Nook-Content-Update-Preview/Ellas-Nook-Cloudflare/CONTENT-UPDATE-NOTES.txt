@@ -1,0 +1,13 @@
+Ella’s Nook content update preview
+
+This is a separate working copy. The original archive and live website were not changed.
+
+Updated: public/index.html
+- Replaced public-facing copy with the approved home, story, audience, workshop, Open Creative Time, calendar introduction, Little Stories, evolving-space, visit and footer content.
+- Added public Creative Combos cards. These are currently static preview entries; making them editable in Ella’s Studio remains a CMS/backend task after Cloudflare setup.
+- Preserved the existing logo, hero video, gallery assets, calendar, feedback form, and base design.
+- Added email mailto links and mobile-friendly WhatsApp booking action.
+- Instagram URL remains unverified; current link goes to Instagram’s homepage and is explicitly labelled for confirmation. Replace it with the exact official profile URL before launch.
+- Used an existing yarn-craft creation photo for The First Stitches and a real group-at-the-table photo for An Afternoon Around the Table. No matching pistachio-shell photo was present in the gallery, so The Pista Army is text-only until the correct real photo is supplied.
+
+Not done: Cloudflare setup, R2 activation, database changes, GitHub commits, domain connection, deployment.
