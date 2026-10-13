@@ -93,7 +93,7 @@ const TABS = { calendar: viewCalendar, blog: viewBlog, feedback: viewFeedback };
 function route() {
   const t = TABS[location.hash.slice(1)] ? location.hash.slice(1) : 'calendar';
   document.querySelectorAll('nav [data-tab]').forEach(b => b.dataset.tab === t ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
-  if (S.at) TABS[t]().catch(e => { if (e.message !== 'Session ended') toast(e.message, 1) });
+  if (loggedIn) TABS[t]().catch(e => { if (e.message !== 'Session ended') toast(e.message, 1) });
 }
 document.querySelector('nav').onclick = e => { const b = e.target.closest('[data-tab]'); if (b) location.hash = b.dataset.tab };
 window.addEventListener('hashchange', route);
