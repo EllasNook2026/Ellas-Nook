@@ -79,7 +79,7 @@ async function resolveImage(st, folder) {
 /* ---------- sign in / out ---------- */
 function showLogin(msg,err){$('#app').hidden=true;$('#login').hidden=false;$('#lm').textContent=msg||'';$('#lm').className='msg'+(err?' err':'');$('#view').replaceChildren();$('#lp').value=''}
 async function enter(){await request('/admin/me');loggedIn=true;$('#login').hidden=true;$('#lp').value='';$('#app').hidden=false;idle();route();badge();return true}
-async function signOut(msg,err){try{await request('/admin/logout',{method:'POST'})}catch(e){}loggedIn=false;showLogin(msg,err)}
+async function signOut(msg,err){try{await request('/admin/logout',{method:'POST'})}catch(e){}loggedIn=false;location.href='/cdn-cgi/access/logout'}
 $('#lf').onsubmit=async e=>{e.preventDefault();const b=$('#lb');b.disabled=true;$('#lm').textContent='';try{await request('/admin/login',{method:'POST',body:{email:clean($('#le').value),password:$('#lp').value}});await enter()}catch(x){showLogin(x.message||'Could not sign in.',1)}finally{b.disabled=false}};
 $('#out').onclick=()=>signOut('You have been signed out.');
 let it, idleOn = false;
