@@ -57,6 +57,7 @@ async function debugAccess(request, env) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (request.method === 'GET' && url.pathname === '/') return Response.redirect(url.origin + '/studio/dashboard.html', 302);
     if (request.method === 'GET' && url.pathname === '/api/admin/debug-access') {
       return new Response(JSON.stringify(await debugAccess(request, env), null, 2), {
         headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }
