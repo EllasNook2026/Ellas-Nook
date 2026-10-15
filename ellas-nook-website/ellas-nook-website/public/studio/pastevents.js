@@ -11,10 +11,19 @@ function drawPastEvents() {
   const v = $('#view');
   const list = h('div', { class: 'list' },
     pe.rows.length
-      ? pe.rows.map(r => h('button', { class: 'item', 'aria-current': pe.sel && pe.sel.id === r.id ? 'true' : null, onclick: () => { pe.sel = r; drawPastEvents(); } },
-          h('b', {}, (r.date_label ? r.date_label + ' · ' : '') + (r.title || '')),
-          h('small', {}, (r.description || '') + ' '),
-          h('span', { class: 'tag' + (r.status === 'published' ? '' : ' draft') }, r.status === 'published' ? 'Published' : 'Hidden')))
+      ? pe.rows.map(r => {
+          const kids = [];
+          if (r.image_url) {
+            const th = h('img', { src: r.image_url, alt: '', loading: 'lazy' });
+            Object.assign(th.style, { width: '56px', height: '56px', objectFit: 'cover', borderRadius: '6px', display: 'block', marginBottom: '4px' });
+            kids.push(th);
+          }
+          kids.push(
+            h('b', {}, (r.date_label ? r.date_label + ' · ' : '') + (r.title || '')),
+            h('small', {}, (r.description || '') + ' '),
+            h('span', { class: 'tag' + (r.status === 'published' ? '' : ' draft') }, r.status === 'published' ? 'Published' : 'Hidden'));
+          return h('button', { class: 'item', 'aria-current': pe.sel && pe.sel.id === r.id ? 'true' : null, onclick: () => { pe.sel = r; drawPastEvents(); } }, ...kids);
+        })
       : h('p', { class: 'empty' }, 'No past events yet.'));
   put(v,
     h('div', { class: 'bar' }, h('h2', {}, 'Past Events'), h('span', { class: 'sp' }),
@@ -35,9 +44,11 @@ function pastEventEditor(r) {
       h('option', { value: 'draft' }, 'Hidden (draft)'))
   };
   f.s.value = r.status || 'published';
+  const pk = picker(r.image_url, 'p-img');
   const save = h('button', { class: 'btn', type: 'submit' }, isNew ? 'Add past event' : 'Save changes');
   const form = h('form', { novalidate: true },
     h('h3', {}, isNew ? 'New past event' : 'Edit past event'),
+    h('div', { class: 'field' }, h('label', { for: 'p-img' }, 'Photo (optional)'), pk.el, h('p', { class: 'hint' }, 'JPG, PNG, WebP or GIF. Leave empty for a card without a photo.')),
     field('Date label', f.l, 'Free text, for example: Aug 15, 2 Days, Oct 02 & 03'),
     field('Title', f.t),
     field('Description', f.d),
@@ -46,7 +57,7 @@ function pastEventEditor(r) {
     h('div', { class: 'actions' }, save,
       !isNew && h('button', { type: 'button', class: 'btn danger', onclick: async () => {
         if (await ask('Delete this past event for good?', 'Delete')) {
-          try { await remove('past_events', r.id); toast('Past event deleted'); pe.sel = null; viewPastEvents(); }
+          try { await remove('past_events', r.id); if (r.image_url) await dropImage(r.image_url); toast('Past event deleted'); pe.sel = null; viewPastEvents(); }
           catch (x) { toast(x.message, 1); }
         }
       } }, 'Delete')));
@@ -56,9 +67,14 @@ function pastEventEditor(r) {
     if (!title) return toast('Please enter a title.', 1);
     if (!Number.isFinite(ord)) return toast('Order must be a number.', 1);
     save.disabled = true;
+    let img = { url: '', old: r.image_url || '', fresh: false };
     try {
-      const row = { date_label, title, description: desc, sort_order: ord, status: f.s.value };
-      const saved = isNew ? await insert('past_events', row) : await update('past_events', r.id, row);
+      if (pk.st.file || (!pk.st.removed && pk.st.url)) img = await resolveImage(pk.st, 'pastevents');
+      const row = { date_label, title, description: desc, image_url: img.url || '', sort_order: ord, status: f.s.value };
+      let saved;
+      try { saved = isNew ? await insert('past_events', row) : await update('past_events', r.id, row); }
+      catch (x) { if (img.fresh) await dropImage(img.url); throw x; }
+      if (img.old) await dropImage(img.old);
       toast(isNew ? 'Past event added' : 'Past event saved');
       await viewPastEvents();
       pe.sel = pe.rows.find(x => x.id === saved.id) || null;
